@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">CampusHub</a>
+            <div class="dashboard-user">
+                <span id="user-name"></span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </nav>
+    </header>
+    <main id="dashboard">
+        <section class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p>Welcome back, <span id="welcome-name"></span>!</p>
+        </section>
+
+        <section class="dashboard-content" id="dashboard-cards">
+
+        </section>
+        <section id="annoucements" class="dashboard-section">
+            <h2>Announcements</h2>
+            <div id="announcement-list"></div>
+        </section>
+
+        <section id="events" class="dashboard-section">
+            <h2>Upcoming Events</h2>
+            <div id="event-list"></div>
+        </section>
+
+<section id="notes" class="dashboard-section">
+            <h2>Study Notes</h2>
+            <div id="note-list"></div>
+        </section>
+    </main>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -46,6 +46,7 @@ loginForm.addEventListener("submit", (event) => {
 
     localStorage.setItem("loggedIn", "true");
     loginModal.classList.remove("open");
+    window.location.href="dashboard.html";
 
 
 });
@@ -58,7 +59,7 @@ if (isLoggedIn === "true") {
     loginLink.textContent = "Logout";
 }
 
-
+//logout 
 loginLink.addEventListener("click", (event) => {
     event.preventDefault();
     const currentLoginState = localStorage.getItem("loggedIn");
@@ -136,6 +137,7 @@ signupForm.addEventListener("submit", (event) => {
     localStorage.setItem("userName",name);
     localStorage.setItem("userEmail",email);
     signupModal.classList.remove("open");
+    window.location.href="dashboard.html";
     loginLink.textContent="Logout";
 })
 
