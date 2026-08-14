@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHub Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <header>
         <nav>
@@ -26,20 +28,104 @@
 
         </section>
         <section id="annoucements" class="dashboard-section">
-            <h2>Announcements</h2>
+            <div class="section-header">
+                <h2>Announcements</h2>
+                <button id="ad-announcements-btn" type="button">
+                    Add Announcement
+                </button>
+            </div>
+
             <div id="announcement-list"></div>
+            <div id="announcement-modal" aria-hidden="true">
+                <div class="announcement-box">
+                    <button type="button" id="close-announcement">×</button>
+                    <h2>Add Announcement</h2>
+
+                    <form id="announcement-form">
+                        <label for="announcement-title">Title</label>
+                        <input type="text" id="announcement-title" required>
+
+                        <label for="announcement-date">Date</label>
+                        <input type="date" id="announcement-date" required>
+
+                        <label for="announcement-description">Description</label>
+                        <textarea id="announcement-description" required></textarea>
+
+                        <button type="submit"> Add Announcement</button>
+
+                    </form>
+                </div>
+            </div>
+
         </section>
 
         <section id="events" class="dashboard-section">
-            <h2>Upcoming Events</h2>
+            <div class="section-header">
+                <h2>Upcoming Events</h2>
+                <button id="ad-events-btn" type="button">
+                    Add Events
+                </button>
+            </div>
             <div id="event-list"></div>
+
+            <div id="event-modal" aria-hidden="true">
+                <div class="event-box">
+
+                    <button id="close-event" type="button">×</button>
+
+                    <h2>Add Event</h2>
+
+                    <form id="event-form">
+
+                        <label for="event-title">Title</label>
+                        <input type="text" id="event-title" required>
+
+                        <label for="event-date">Date</label>
+                        <input type="date" id="event-date" required>
+
+                        <label for="event-location">Location</label>
+                        <input type="text" id="event-location" required>
+
+                        <button type="submit">Add Event</button>
+
+                    </form>
+                </div>
+            </div>
+
         </section>
 
-<section id="notes" class="dashboard-section">
-            <h2>Study Notes</h2>
+        <section id="notes" class="dashboard-section">
+            <div class="section-header">
+                <h2>Study Notes</h2>
+                <button id="ad-notes-btn" type="button">
+                    Add Note
+                </button>
+            </div>
             <div id="note-list"></div>
+
+            <div id="note-modal" aria-hidden="true">
+                <div class="note-box">
+                    <button id="close-note" type="button">×</button>
+                    <h2>Add Note</h2>
+
+                    <form id="note-form">
+                        <label for="note-title">Title</label>
+                        <input type="text" id="note-title" required>
+
+                        <label for="note-subject">Subject</label>
+                        <input type="text" id="note-subject" required>
+
+                        <label for="note-description">Description</label>
+                        <textarea id="note-description" required></textarea>
+
+                        <button type="submit">Add Note</button>
+                    </form>
+                </div>
+            </div>
+
         </section>
     </main>
     <script src="js/dashboard.js"></script>
 </body>
+
 </html>
