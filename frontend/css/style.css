@@ -1542,9 +1542,39 @@ nav .logo::before {
 	}
 }
 
-.delete-btn {
-	align-self: flex-start;
+.card-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 	margin-top: auto;
+}
+
+.edit-btn {
+	border: 0;
+	border-radius: 999px;
+	padding: 0.4rem 0.9rem;
+	font: inherit;
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: var(--primary-hover);
+	background: var(--primary-soft);
+	cursor: pointer;
+	transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.edit-btn:hover,
+.edit-btn:focus-visible {
+	background: rgba(37, 99, 235, 0.2);
+	color: var(--primary);
+	transform: translateY(-1px);
+	outline: none;
+}
+
+.edit-btn:active {
+	transform: translateY(0);
+}
+
+.delete-btn {
 	border: 0;
 	border-radius: 999px;
 	padding: 0.4rem 0.9rem;
@@ -1562,6 +1592,34 @@ nav .logo::before {
 	background: rgba(225, 29, 72, 0.16);
 	transform: translateY(-1px);
 	outline: none;
+}
+
+/* Updated item highlight (2s) */
+
+.dashboard-section article.just-updated {
+	animation: update-highlight 2s ease-out;
+}
+
+@keyframes update-highlight {
+	0% {
+		background: var(--primary-soft);
+		border-color: rgba(37, 99, 235, 0.65);
+		box-shadow: 0 0 0 4px var(--primary-soft), 0 16px 32px rgba(37, 99, 235, 0.2);
+		transform: scale(1.015);
+	}
+
+	30% {
+		background: rgba(37, 99, 235, 0.18);
+		border-color: rgba(37, 99, 235, 0.65);
+		box-shadow: 0 0 0 4px var(--primary-soft), 0 16px 32px rgba(37, 99, 235, 0.2);
+	}
+
+	100% {
+		background: var(--surface-strong);
+		border-color: var(--line);
+		box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+		transform: scale(1);
+	}
 }
 
 /* Bubble burst delete animation */
@@ -1619,6 +1677,11 @@ nav .logo::before {
 	.dashboard-content article {
 		animation: none;
 		transition: none;
+	}
+
+	.dashboard-section article.just-updated {
+		animation: none;
+		background: var(--primary-soft);
 	}
 
 	#logout-btn {

@@ -72,7 +72,13 @@ app.post("/api/announcements", async (req, res) => {
 
     try {
         const { title, date, description } = req.body;
-
+        if(!title?.trim()||!date?.trim()||!description?.trim()){
+            return res.status(400).json(
+                {
+                    message:"All fields are required"
+                }
+            );
+        }
         const [result] = await db.query(
             `INSERT INTO ANNOUNCEMENTS (title,date,description)
             VALUES(?,?,?)`,
@@ -92,10 +98,106 @@ app.post("/api/announcements", async (req, res) => {
 });
 
 
+app.put("/api/announcements/:id",async(req,res)=>{
+    console.log("PUT ANNOUNCEMENT ROUTE HIT");
+    try{
+        
+        // const id=Number(req.params.id);
+        // const {title,date,description}=req.body;
+
+        //  const [existing] = await db.query(
+        //     "SELECT * FROM announcements WHERE id = ?",
+        //     [id]
+        // );
+
+        // if (existing.length === 0) {
+        //     return res.status(404).json({
+        //         message: "Announcement not found"
+        //     });
+        // }
+
+        // // 2. Update it
+        // await db.query(
+        //     `UPDATE announcements
+        //      SET title = ?, date = ?, description = ?
+        //      WHERE id = ?`,
+        //     [title, date, description, id]
+        // );
+
+        // // 3. Get the updated record
+        // const [rows] = await db.query(
+        //     "SELECT * FROM announcements WHERE id = ?",
+        //     [id]
+        // );
+
+        // // 4. Return updated record
+        // res.json(rows[0]);
+        const id = Number(req.params.id);
+
+        if(!Number.isInteger(id) || id<=0){
+            return res.status(400).json(
+                {
+                    message:"Invalid ID"
+                }
+            );
+        }
+        const { title, date, description } = req.body;
+        if(!title?.trim() || !date?.trim() || !description?.trim()){
+            return res.status(400).json({
+                message:"All fields are required"
+            });
+        }
+        console.log("ID:", id);
+        console.log("BODY:", req.body);
+
+        const [existing] = await db.query(
+            `select * from announcements
+             WHERE id = ?`,
+            [ id]
+        );
+
+        // console.log("UPDATE RESULT:", result);
+
+        if (existing.affectedRows === 0) {
+            console.log("NO ROW UPDATED");
+
+            return res.status(404).json({
+                message: "Announcement not found"
+            });
+        }
+        await db.query(
+            `update announcements
+            set title=?,date=?,description=?
+            where id=?`,[title,date,description,id]
+        );
+        console.log("UPDATE SUCCESSFUL");
+
+        const [rows] = await db.query(
+            "SELECT * FROM announcements WHERE id = ?",
+            [id]
+        );
+
+        console.log("UPDATED ROW:", rows[0]);
+
+        res.json(rows[0]);
+    }catch(error){
+        console.error("Error updating announcements: ",error);
+        res.status(500).json({
+            message:"Failed to update announcement"
+        });
+    }
+})
+
 app.delete("/api/announcements/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
-
+        if(!Number.isInteger(id) || id<=0){
+            return res.status(400).json(
+                {
+                    message:"Invalid ID"
+                }
+            );
+        }
         const [result] = await db.query(
             "DELETE FROM ANNOUNCEMENTS WHERE ID=?", [id]
         );
@@ -170,6 +272,11 @@ app.post("/api/events", async (req, res) => {
 
     try {
         const { title, date, location } = req.body;
+        if(!title?.trim() || !date?.trim() || !location?.trim()){
+            return res.status(400).json({
+                message:"All fields are required"
+            });
+        }
         const [result] = await db.query(
             `INSERT INTO EVENTS (TITLE,DATE,LOCATION)
             VALUES(?,?,?)`, [title, date, location]
@@ -194,7 +301,13 @@ app.post("/api/events", async (req, res) => {
 app.delete("/api/events/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
-
+        if(!Number.isInteger(id) || id<=0){
+            return res.status(400).json(
+                {
+                    message:"Invalid ID"
+                }
+            );
+        }
         const [result] = await db.query(
             "DELETE FROM EVENTS WHERE id=?", [id]
         );
@@ -218,6 +331,54 @@ app.delete("/api/events/:id", async (req, res) => {
         });
     }
 });
+
+
+app.put("/api/events/:id",async(req,res)=>{
+    try {
+        const eventId=Number(req.params.id);
+        if(!Number.isInteger(eventId) || eventId<=0){
+            return res.status(400).json(
+                {
+                    message:"Invalid ID"
+                }
+            );
+        }
+        const {title,date,location}=req.body;
+        if(!title?.trim() || !date?.trim() || !location?.trim()){
+            return res.status(400).json({
+                message:"All fields are required"
+            });
+        }
+        const [existing]=await db.query(
+            `SElect * from events where id=?`,
+            [eventId]
+        );
+
+        if(existing.affectedRows===0){
+            return res.status(404).json(
+                {
+                    message:"Event not found"
+                }
+            );
+        }
+        await db.query(
+            `update events
+            set title=?,date=?,location=?
+            where id=?`,[title,date,location,eventId]
+        );
+        const [rows]=await db.query(
+            `select * from events
+            where id=?`,[eventId]
+        );
+
+        res.json(rows[0]);
+    } catch (error) {
+        console.error("Error while fetching event");
+        res.status(500).json({
+            message:"Event loading error"
+        });
+    }
+})
 
 
 // const notes = [
@@ -260,6 +421,11 @@ app.get("/api/notes", async (req, res) => {
 app.post("/api/notes", async (req, res) => {
     try {
         const { title, subject, description } = req.body;
+        if(!title?.trim() || !subject?.trim() || !description?.trim()){
+            return res.status(400).json({
+                message:"All fields are required"
+            });
+        }
         const [result] = await db.query(
             `INSERT INTO NOTES (TITLE,SUBJECT,DESCRIPTION)
             VALUES(?,?,?)`, [title, subject, description]
@@ -286,7 +452,13 @@ app.post("/api/notes", async (req, res) => {
 app.delete("/api/notes/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
-
+        if(!Number.isInteger(id) || id<=0){
+            return res.status(400).json(
+                {
+                    message:"Invalid ID"
+                }
+            );
+        }
         const [result] = await db.query(
             "DELETE FROM NOTES WHERE ID=?", [id]
         );
@@ -310,7 +482,52 @@ app.delete("/api/notes/:id", async (req, res) => {
         });
     }
 });
+app.put("/api/notes/:id",async(req,res)=>{
+    try {
+        const notesId=Number(req.params.id);
+        if(!Number.isInteger(notesId) || notesId<=0){
+            return res.status(400).json(
+                {
+                    message:"Invalid ID"
+                }
+            );
+        }
+        const {title,subject,description}=req.body;
+        if(!title?.trim() || !subject?.trim() || !description?.trim()){
+            return res.status(400).json({
+                message:"All fields are required"
+            });
+        }
+        const [existing]=await db.query(
+            `SELECT * fROM notes where id=?`,[notesId]
+        );
 
+        if(existing.affectedRows===0){
+            return res.status(404).json(
+                {
+                    message:"Note not found"
+                }
+            );
+        }
+
+        await db.query(
+            `Update notes
+            set title=?, subject=?,description=?`,
+            [title,subject,description]
+        );
+
+        const [rows]=await db.query(
+            "Select * from notes  where id=?",[notesId]
+        );
+
+        res.json(rows[0]);
+    } catch (error) {
+        console.error("Error updating note:",error);
+        res.status(500).json({
+            message:"failed to update note"
+        });
+    }
+})
 app.listen(PORT, () => {//(platform,callback)
     console.log(`CampusHub server running on port ${PORT}`);
 });
