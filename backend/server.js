@@ -13,6 +13,52 @@ const db = mysql.createPool({
     database: "campushub"
 });
 
+
+/* <========CHECKING OF VALID ID========>*/
+function isValid(id){
+    return Number.isInteger(id) && id>0;
+}
+
+
+/* <<======VALID FIELD VALUES========>>*/
+// function validateFields(fields){
+//     for(const field of fields){
+//         if(!field.trim()){
+//             return false;
+//         }
+//     }
+//     return true;
+// }
+
+/* <<=========MIDDLEWARE==========>>*/
+// function validateAnnouncement(req,res,next){
+//     const {title,date,description}=req.body;
+//     if(!validateFields([title,date,description])){
+//         return res.status(400).json({
+//             message:"All fields are required"
+//         });
+//     }
+//     next();
+// }
+
+function validateFieldsMiddleware(fields){
+    return (req,res,next)=>{
+        for(const field of fields){
+            const value=req.body[field];
+            if(!value?.trim()){
+                return res.status(400).json({
+                    message:`${field} is required`
+                })
+            }
+        }
+        next();
+    }
+}
+
+const validateAnnouncement=validateFieldsMiddleware(["title","date","description"]);
+const validateEvent=validateFieldsMiddleware(["title","date","location"]);
+const validateNote=validateFieldsMiddleware(["title","subject","description"]);
+
 async function testDatabase() {
     try {
         const [result] = await db.query("SELECT 1");
@@ -28,22 +74,7 @@ app.get("/", (req, res) => {//syntax (path,callback)
 })
 
 
-// const announcements=[
-//     {
-//         id: 1,
-//         title: "End Semester Examination",
-//         date: "August 20",
-//         description: "End semester examination timetable has been released."
-//     },
-//     {
-//         id: 2,
-//         title: "Hackathon Registration",
-//         date: "August 25",
-//         description: "Registrations are open for the upcoming campus hackathon."
-//     }
-// ];
-
-app.get("/api/announcements", async (req, res) => {
+app.get("/api/announcements", async (req, res,next) => {
     try {
         const [rows] = await db.query(
             "SELECT * FROM ANNOUNCEMENTS"
@@ -51,34 +82,18 @@ app.get("/api/announcements", async (req, res) => {
 
         res.json(rows);
     } catch (error) {
-        console.error("Error fetching announcements: ", error);
-
-        res.status(500).json({
-            message: "Failed to fetch announcements"
-        });
+        next(error);
     }
 });
 
-app.post("/api/announcements", async (req, res) => {
-    // const newAnnouncement={
-    //     id:announcements.length+1,
-    //     title:req.body.title,
-    //     date:req.body.date,
-    //     description:req.body.description
-    // };
+app.post("/api/announcements",
+        validateAnnouncement,
+        async (req, res,next) => {
 
-    // announcements.push(newAnnouncement);
-    // res.status(201).json(newAnnouncement);
 
     try {
         const { title, date, description } = req.body;
-        if(!title?.trim()||!date?.trim()||!description?.trim()){
-            return res.status(400).json(
-                {
-                    message:"All fields are required"
-                }
-            );
-        }
+        
         const [result] = await db.query(
             `INSERT INTO ANNOUNCEMENTS (title,date,description)
             VALUES(?,?,?)`,
@@ -90,15 +105,14 @@ app.post("/api/announcements", async (req, res) => {
         );
         res.status(201).json(rows[0]);
     } catch (error) {
-        console.error("Error adding announcements ", error);
-        res.status(500).json({
-            message: "Failed to add annoucement"
-        });
+        next(error);
     }
 });
 
 
-app.put("/api/announcements/:id",async(req,res)=>{
+app.put("/api/announcements/:id",
+    validateAnnouncement,
+    async(req,res,next)=>{
     console.log("PUT ANNOUNCEMENT ROUTE HIT");
     try{
         
@@ -134,7 +148,7 @@ app.put("/api/announcements/:id",async(req,res)=>{
         // res.json(rows[0]);
         const id = Number(req.params.id);
 
-        if(!Number.isInteger(id) || id<=0){
+        if(!isValid(id)){
             return res.status(400).json(
                 {
                     message:"Invalid ID"
@@ -142,13 +156,8 @@ app.put("/api/announcements/:id",async(req,res)=>{
             );
         }
         const { title, date, description } = req.body;
-        if(!title?.trim() || !date?.trim() || !description?.trim()){
-            return res.status(400).json({
-                message:"All fields are required"
-            });
-        }
-        console.log("ID:", id);
-        console.log("BODY:", req.body);
+        
+        
 
         const [existing] = await db.query(
             `select * from announcements
@@ -156,10 +165,10 @@ app.put("/api/announcements/:id",async(req,res)=>{
             [ id]
         );
 
-        // console.log("UPDATE RESULT:", result);
+       
 
-        if (existing.affectedRows === 0) {
-            console.log("NO ROW UPDATED");
+        if (existing.length === 0) {
+            
 
             return res.status(404).json({
                 message: "Announcement not found"
@@ -170,28 +179,25 @@ app.put("/api/announcements/:id",async(req,res)=>{
             set title=?,date=?,description=?
             where id=?`,[title,date,description,id]
         );
-        console.log("UPDATE SUCCESSFUL");
+        
 
         const [rows] = await db.query(
             "SELECT * FROM announcements WHERE id = ?",
             [id]
         );
 
-        console.log("UPDATED ROW:", rows[0]);
+        
 
         res.json(rows[0]);
     }catch(error){
-        console.error("Error updating announcements: ",error);
-        res.status(500).json({
-            message:"Failed to update announcement"
-        });
+        next(error);
     }
 })
 
-app.delete("/api/announcements/:id", async (req, res) => {
+app.delete("/api/announcements/:id", async (req, res,next) => {
     try {
         const id = Number(req.params.id);
-        if(!Number.isInteger(id) || id<=0){
+        if(!isValid(id)){
             return res.status(400).json(
                 {
                     message:"Invalid ID"
@@ -212,10 +218,7 @@ app.delete("/api/announcements/:id", async (req, res) => {
             message: "Announcement deleted successfully"
         });
     } catch (error) {
-        console.error("Error deleting announcements:", error);
-        res.status(500).json({
-            message: "Failed to delete announcement"
-        });
+        next(error);
     }
 });
 
@@ -224,59 +227,24 @@ app.delete("/api/announcements/:id", async (req, res) => {
 
 /*========EVENTS API==========*/
 
-// const events=[
-//     {
-//         id:1,
-//         title:"Campus Hackathon",
-//         date : "August 18",
-//         location:"Main Auditorium"
-//     },
-//     {
-//         id: 2,
-//         title: "Technical Workshop",
-//         date: "August 22",
-//         location: "Computer Lab 2"
-//     },
-//     {
-//         id: 3,
-//         title: "Sports Meet",
-//         date: "August 27",
-//         location: "College Ground"
-//     }
-// ];
-
-app.get("/api/events", async (req, res) => {
+app.get("/api/events", async (req, res,next) => {
     try {
         const [rows] = await db.query(
             "SELECT * FROM EVENTS"
         );
         res.json(rows);
     } catch (error) {
-        console.error("Error fetching events: ", error);
-        res.status(500).json({
-            message: "Failed to fetch events"
-        });
+        next(error);
     }
 });
 
 
-app.post("/api/events", async (req, res) => {
-    // const newEvent={
-    //     id: events.length + 1,
-    //     title: req.body.title,
-    //     date: req.body.date,
-    //     location: req.body.location
-    // };
-    // events.push(newEvent);
-    // res.status(201).json(newEvent);
+app.post("/api/events", validateEvent,async (req, res,next) => {
+
 
     try {
         const { title, date, location } = req.body;
-        if(!title?.trim() || !date?.trim() || !location?.trim()){
-            return res.status(400).json({
-                message:"All fields are required"
-            });
-        }
+        
         const [result] = await db.query(
             `INSERT INTO EVENTS (TITLE,DATE,LOCATION)
             VALUES(?,?,?)`, [title, date, location]
@@ -289,19 +257,15 @@ app.post("/api/events", async (req, res) => {
         res.status(201).json(rows[0]);
 
     } catch (error) {
-        console.error("Error adding event:", error);
-
-        res.status(500).json({
-            message: "Failed to add event"
-        });
+        next(error);
     }
 });
 
 
-app.delete("/api/events/:id", async (req, res) => {
+app.delete("/api/events/:id", async (req, res,next) => {
     try {
         const id = Number(req.params.id);
-        if(!Number.isInteger(id) || id<=0){
+        if(!isValid(id)){
             return res.status(400).json(
                 {
                     message:"Invalid ID"
@@ -325,18 +289,15 @@ app.delete("/api/events/:id", async (req, res) => {
             message: "Event deleted successfully"
         });
     } catch (error) {
-        console.error("Error deleting event :", error);
-        res.status(500).json({
-            message: "Failed to delete event"
-        });
+        next(error);
     }
 });
 
 
-app.put("/api/events/:id",async(req,res)=>{
+app.put("/api/events/:id",validateEvent,async(req,res,next)=>{
     try {
         const eventId=Number(req.params.id);
-        if(!Number.isInteger(eventId) || eventId<=0){
+        if(!isValid(eventId)){
             return res.status(400).json(
                 {
                     message:"Invalid ID"
@@ -344,17 +305,13 @@ app.put("/api/events/:id",async(req,res)=>{
             );
         }
         const {title,date,location}=req.body;
-        if(!title?.trim() || !date?.trim() || !location?.trim()){
-            return res.status(400).json({
-                message:"All fields are required"
-            });
-        }
+        
         const [existing]=await db.query(
             `SElect * from events where id=?`,
             [eventId]
         );
 
-        if(existing.affectedRows===0){
+        if(existing.length===0){
             return res.status(404).json(
                 {
                     message:"Event not found"
@@ -373,59 +330,28 @@ app.put("/api/events/:id",async(req,res)=>{
 
         res.json(rows[0]);
     } catch (error) {
-        console.error("Error while fetching event");
-        res.status(500).json({
-            message:"Event loading error"
-        });
+        next(error);
     }
 })
 
 
-// const notes = [
-//     {
-//         id: 1,
-//         title: "Data Structures",
-//         subject: "Computer Science",
-//         description: "Linked lists, stacks, queues and trees."
-//     },
-//     {
-//         id: 2,
-//         title: "Operating Systems",
-//         subject: "Computer Science",
-//         description: "CPU scheduling and process management."
-//     },
-//     {
-//         id: 3,
-//         title: "Machine Learning",
-//         subject: "Artificial Intelligence",
-//         description: "Regression, classification and model evaluation."
-//     }
-// ];
 
-app.get("/api/notes", async (req, res) => {
+app.get("/api/notes", async (req, res,next) => {
     try {
-        const [result] = await db.query(
+        const [rows] = await db.query(
             "SELECT * FROM NOTES"
         );
-        res.json(result);
+        res.json(rows);
     }
     catch (error) {
-        console.error("Error in fetching notes: ", error);
-
-        res.status(500).json({
-            message: "Failed fetching notes"
-        })
+        next(error);
     }
 });
 
-app.post("/api/notes", async (req, res) => {
+app.post("/api/notes", validateNote,async (req, res,next) => {
     try {
         const { title, subject, description } = req.body;
-        if(!title?.trim() || !subject?.trim() || !description?.trim()){
-            return res.status(400).json({
-                message:"All fields are required"
-            });
-        }
+        
         const [result] = await db.query(
             `INSERT INTO NOTES (TITLE,SUBJECT,DESCRIPTION)
             VALUES(?,?,?)`, [title, subject, description]
@@ -439,20 +365,16 @@ app.post("/api/notes", async (req, res) => {
         res.status(201).json(rows[0]);
     }
     catch (error) {
-        console.error("Error adding note:", error);
-
-        res.status(500).json({
-            message: "Failed to add note"
-        });
+        next(error);
     }
 
 
 });
 
-app.delete("/api/notes/:id", async (req, res) => {
+app.delete("/api/notes/:id", async (req, res,next) => {
     try {
         const id = Number(req.params.id);
-        if(!Number.isInteger(id) || id<=0){
+        if(!isValid(id)){
             return res.status(400).json(
                 {
                     message:"Invalid ID"
@@ -475,17 +397,13 @@ app.delete("/api/notes/:id", async (req, res) => {
             message: "Notes deleted successfully"
         });
     } catch (error) {
-        console.error("Error deleting note :", error);
-
-        res.status(500).json({
-            message: "Failed to delete note"
-        });
+        next(error);
     }
 });
-app.put("/api/notes/:id",async(req,res)=>{
+app.put("/api/notes/:id",validateNote,async(req,res,next)=>{
     try {
         const notesId=Number(req.params.id);
-        if(!Number.isInteger(notesId) || notesId<=0){
+        if(!isValid(notesId)){
             return res.status(400).json(
                 {
                     message:"Invalid ID"
@@ -493,16 +411,12 @@ app.put("/api/notes/:id",async(req,res)=>{
             );
         }
         const {title,subject,description}=req.body;
-        if(!title?.trim() || !subject?.trim() || !description?.trim()){
-            return res.status(400).json({
-                message:"All fields are required"
-            });
-        }
+        
         const [existing]=await db.query(
             `SELECT * fROM notes where id=?`,[notesId]
         );
 
-        if(existing.affectedRows===0){
+        if(existing.length===0){
             return res.status(404).json(
                 {
                     message:"Note not found"
@@ -512,8 +426,9 @@ app.put("/api/notes/:id",async(req,res)=>{
 
         await db.query(
             `Update notes
-            set title=?, subject=?,description=?`,
-            [title,subject,description]
+            set title=?, subject=?,description=?
+            where id=?`,
+            [title,subject,description,notesId]
         );
 
         const [rows]=await db.query(
@@ -522,12 +437,21 @@ app.put("/api/notes/:id",async(req,res)=>{
 
         res.json(rows[0]);
     } catch (error) {
-        console.error("Error updating note:",error);
-        res.status(500).json({
-            message:"failed to update note"
-        });
+        next(error);
     }
 })
+
+// a fun having 4 para is used for error handler : the way express works
+function errorHandler(error,req,res,next){
+    console.error(error);
+    res.status(500).json({
+        message:"Internal server error"
+    });
+}
+
+
+
+app.use(errorHandler);
 app.listen(PORT, () => {//(platform,callback)
     console.log(`CampusHub server running on port ${PORT}`);
 });

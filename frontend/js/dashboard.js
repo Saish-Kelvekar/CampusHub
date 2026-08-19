@@ -147,7 +147,8 @@ async function loadAnnouncements() {
             "http://localhost:3000/api/announcements"
         );
         if (!response.ok) {
-            throw new Error("Failed to load announcements");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
         announcements = await response.json();
         renderAnnouncements(announcements);
@@ -243,7 +244,8 @@ async function loadEvents() {
         );
 
         if (!response.ok) {
-            throw new Error("Failed to load events");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
 
         events = await response.json();
@@ -312,7 +314,8 @@ eventForm.addEventListener("submit", async (event) => {
             }
         );
         if (!response.ok) {
-            throw new Error("Failed to add event");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
     }else{
         const response=await fetch(
@@ -326,7 +329,8 @@ eventForm.addEventListener("submit", async (event) => {
             }
         );
         if(!response.ok){
-            throw new Error("Failed to update event");
+            const errorData=await response.json();
+                throw new Error(errorData.message);
         }
         highlightEventId = editingEventId;
         editingEventId=null;
@@ -361,7 +365,8 @@ async function deleteEvent(id) {
 
         if (!response.ok) {
 
-            throw new Error("Failed to delete event");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
         await loadEvents();
     } catch (error) {
@@ -428,7 +433,8 @@ async function loadNotes() {
         );
 
         if (!response.ok) {
-            throw new Error("Failed to load notes")
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
 
         notes = await response.json();
@@ -504,7 +510,8 @@ noteForm.addEventListener("submit", async (event) => {
             }
         );
         if (!response.ok) {
-            throw new Error("Failed to add note");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
         }else{
             const response=await fetch(
@@ -519,7 +526,8 @@ noteForm.addEventListener("submit", async (event) => {
             );
 
             if(!response.ok){
-                throw new Error("Failed to update the note")
+                const errorData=await response.json();
+                throw new Error(errorData.message);
             }
             highlightNoteId = editingNoteId;
             editingNoteId=null;
@@ -553,7 +561,8 @@ async function deleteNote(id) {
         );
 
         if (!response.ok) {
-            throw new Error("Failed to delete note");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
 
         await loadNotes();
@@ -626,11 +635,12 @@ announcementForm.addEventListener("submit", async (event) => {
                 }
             );
             if (!response.ok) {
-                throw new Error("Failed to add announcement");
+                const errorData=await response.json();
+            throw new Error(errorData.message);
             }
             // const createdAnnouncement=await response.json(); this was taking the object returned by the backend after storing in the announ array in backend
             // announcements.push(createdAnnouncement);  here in frontend it created and obj called createdAnnouncement and added it in the frontend array
-            await loadAnnouncements();
+            
 
         }else{
             const response=await fetch(
@@ -644,7 +654,8 @@ announcementForm.addEventListener("submit", async (event) => {
                 }
             );
             if(!response.ok){
-                throw new Error("Failed to update announcement");
+                const errorData=await response.json();
+            throw new Error(errorData.message);
             }
 
             highlightAnnouncementId = editingAnnouncementId;
@@ -675,7 +686,8 @@ async function deleteAnnouncement(id) {
         );
 
         if (!response.ok) {
-            throw new Error("Failer to delete announcement");
+            const errorData=await response.json();
+            throw new Error(errorData.message);
         }
 
         // announcements=announcements.filter(
