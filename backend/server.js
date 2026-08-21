@@ -58,6 +58,6 @@ app.use("/api/notes", noteRoutes);
 
 const errorHandler = require("./middleware/errorHandler");
 app.use(errorHandler);
-app.listen(PORT, () => {//(platform,callback)
+app.listen(PORT,"0.0.0.0" ,() => {//(platform,callback)
     console.log(`CampusHub server running on port ${PORT}`);
 });

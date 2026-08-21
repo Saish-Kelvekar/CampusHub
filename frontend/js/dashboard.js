@@ -1,5 +1,5 @@
 const isLoggedIn = localStorage.getItem("loggedIn");
-
+const API_URL = "http://localhost:3000/api";
 if (isLoggedIn !== "true") {
     window.location.href = "index.html";
 }
@@ -43,28 +43,7 @@ const dashboardItems = [
     }
 ];
 
-function renderDashboardCards(items) {
-    const dashboardCards = document.querySelector("#dashboard-cards");
 
-    dashboardCards.innerHTML = "";
-    items.forEach((item) => {
-        const card = document.createElement("a");
-        card.href = item.link;
-        const title = document.createElement("h2");
-        title.textContent = item.title;
-
-        const description = document.createElement("p");
-        description.textContent = item.description;
-
-        const count = document.createElement("span");
-        count.textContent = item.count;
-
-
-
-        card.append(title, description, count);
-        dashboardCards.append(card);
-    })
-}
 
 
 
@@ -78,8 +57,7 @@ function animateDelete(button, callback) {
     }
 }
 
-// const storedAnnouncements = localStorage.getItem("announcements");
-// let announcements = storedAnnouncements ? JSON.parse(storedAnnouncements) : [];
+
 
 
 let announcements = [];
@@ -88,6 +66,10 @@ function renderAnnouncements(items) {
     const announcementList = document.querySelector("#announcement-list");
 
     announcementList.innerHTML = "";
+    if (items.length === 0) {
+        announcementList.textContent = "No announcements available. ";
+        return;
+    }
     items.forEach((item) => {
         const announcement = document.createElement("article");
 
@@ -117,6 +99,11 @@ function renderAnnouncements(items) {
         deleteButton.className = "delete-btn";
 
         deleteButton.addEventListener("click", () => {
+            const confirmed = confirm("Are you sure you want to delete this announcement?");
+
+            if (!confirmed) {
+                return;
+            }
             animateDelete(deleteButton, () => deleteAnnouncement(item.id));
         })
 
@@ -142,12 +129,14 @@ function editAnnouncement(item) {
 }
 
 async function loadAnnouncements() {
+    const announcementList = document.querySelector("#announcement-list");
+    announcementList.textContent = "Loading Announcements...."
     try {
         const response = await fetch(
-            "http://localhost:3000/api/announcements"
+            `${API_URL}/announcements`
         );
         if (!response.ok) {
-            const errorData=await response.json();
+            const errorData = await response.json();
             throw new Error(errorData.message);
         }
         announcements = await response.json();
@@ -156,13 +145,14 @@ async function loadAnnouncements() {
     }
     catch (error) {
         console.error(error);
+        announcementList.textContent = "Failed to load announcements. Please try again"
     }
 
 
 
 }
 loadAnnouncements();
-// renderAnnouncements(announcements);
+
 
 
 
@@ -174,14 +164,16 @@ let highlightEventId = null;
 
 
 
-// if (!storedEvents) {
-//     localStorage.setItem("events", JSON.stringify(events));
-// }
+
 
 function renderEvents(items) {
     const eventList = document.querySelector("#event-list");
 
     eventList.innerHTML = "";
+    if (items.length === 0) {
+        eventList.textContent = "No events available. ";
+        return;
+    }
     items.forEach((item) => {
         const event = document.createElement("article");
 
@@ -211,6 +203,11 @@ function renderEvents(items) {
         deleteButton.className = "delete-btn";
 
         deleteButton.addEventListener("click", () => {
+            const confirmed = confirm("Are you sure you want to delete this event?");
+
+            if (!confirmed) {
+                return;
+            }
             animateDelete(deleteButton, () => deleteEvent(item.id));
         });
 
@@ -221,30 +218,33 @@ function renderEvents(items) {
         event.append(title, date, location, actions);
         eventList.append(event);
     })
+
     highlightEventId = null;
 }
 
-let editingEventId=null;
+let editingEventId = null;
 
-function editEvent(item){
-    editingEventId=item.id;
+function editEvent(item) {
+    editingEventId = item.id;
 
-    eventTitle.value=item.title;
-    eventDate.value=item.date;
-    eventLocation.value=item.location;
+    eventTitle.value = item.title;
+    eventDate.value = item.date;
+    eventLocation.value = item.location;
 
     eventModal.classList.add("open");
-    eventModal.setAttribute("aria-hidden","false");
+    eventModal.setAttribute("aria-hidden", "false");
 }
 
 async function loadEvents() {
+    const eventList = document.querySelector("#event-list");
+    eventList.textContent = "Loading events....";
     try {
         const response = await fetch(
-            "http://localhost:3000/api/events"
+            `${API_URL}/events`
         );
 
         if (!response.ok) {
-            const errorData=await response.json();
+            const errorData = await response.json();
             throw new Error(errorData.message);
         }
 
@@ -254,13 +254,14 @@ async function loadEvents() {
 
     } catch (error) {
         console.error("Error loading events :", error);
+        eventList.textContent = "Failed to load events. Please try again"
     }
 }
 
 loadEvents();
 
 
-renderEvents(events);
+
 
 
 const addEventBtn = document.querySelector("#ad-events-btn");
@@ -302,47 +303,44 @@ eventForm.addEventListener("submit", async (event) => {
         date: date,
         location: location
     };
-    try {if(editingEventId===null){
-        const response = await fetch(
-            "http://localhost:3000/api/events",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(newEvent)
-            }
-        );
-        if (!response.ok) {
-            const errorData=await response.json();
-            throw new Error(errorData.message);
-        }
-    }else{
-        const response=await fetch(
-            `http://localhost:3000/api/events/${editingEventId}`,
-            {
-                method:"PUT",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify(newEvent)
-            }
-        );
-        if(!response.ok){
-            const errorData=await response.json();
+    try {
+        if (editingEventId === null) {
+            const response = await fetch(
+                `${API_URL}/events`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(newEvent)
+                }
+            );
+            if (!response.ok) {
+                const errorData = await response.json();
                 throw new Error(errorData.message);
+            }
+        } else {
+            const response = await fetch(
+                `${API_URL}/events/${editingEventId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(newEvent)
+                }
+            );
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message);
+            }
+            highlightEventId = editingEventId;
+            editingEventId = null;
         }
-        highlightEventId = editingEventId;
-        editingEventId=null;
-    }
-        
+
         await loadEvents();
 
-        // const createdEvent = await response.json();
-        // events.push(createdEvent);
-        // renderEvents(events);
-        // updateDashboardCounts();
-
+        
         eventForm.reset();
         eventModal.classList.remove("open");
         eventModal.setAttribute("aria-hidden", "true");
@@ -355,9 +353,10 @@ eventForm.addEventListener("submit", async (event) => {
 });
 
 async function deleteEvent(id) {
+    
     try {
         const response = await fetch(
-            `http://localhost:3000/api/events/${id}`,
+            `${API_URL}/events/${id}`,
             {
                 method: "DELETE"
             }
@@ -365,7 +364,7 @@ async function deleteEvent(id) {
 
         if (!response.ok) {
 
-            const errorData=await response.json();
+            const errorData = await response.json();
             throw new Error(errorData.message);
         }
         await loadEvents();
@@ -379,11 +378,15 @@ async function deleteEvent(id) {
 
 let notes = [];
 let highlightNoteId = null;
-let editingNoteId=null;
+let editingNoteId = null;
 function renderNotes(items) {
     const noteList = document.querySelector("#note-list");
 
     noteList.innerHTML = "";
+    if (items.length === 0) {
+        noteList.textContent = "No notes available. ";
+        return;
+    }
     items.forEach((item) => {
         const note = document.createElement("article");
 
@@ -400,18 +403,23 @@ function renderNotes(items) {
         const description = document.createElement("p");
         description.textContent = item.description;
 
-        const editButton=document.createElement("button");
-        editButton.textContent="Edit";
-        editButton.className="edit-btn";
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.className = "edit-btn";
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
         deleteButton.className = "delete-btn";
 
-        editButton.addEventListener("click",()=>{
+        editButton.addEventListener("click", () => {
             editNotes(item);
         })
         deleteButton.addEventListener("click", () => {
+            const confirmed = confirm("Are you sure you want to delete this note?");
+
+            if (!confirmed) {
+                return;
+            }
             animateDelete(deleteButton, () => deleteNote(item.id));
         });
 
@@ -427,13 +435,15 @@ function renderNotes(items) {
 
 
 async function loadNotes() {
+    const noteList = document.querySelector("#note-list");
+    noteList.textContent = "Loading notes....";
     try {
         const response = await fetch(
-            "http://localhost:3000/api/notes"
+            `${API_URL}/notes`
         );
 
         if (!response.ok) {
-            const errorData=await response.json();
+            const errorData = await response.json();
             throw new Error(errorData.message);
         }
 
@@ -442,6 +452,7 @@ async function loadNotes() {
         updateDashboardCounts();
     } catch (error) {
         console.error("Error loading the notes", error);
+        noteList.textContent = "Failed to load  notes. Please try again"
     }
 
 }
@@ -475,14 +486,14 @@ const noteTitle = document.querySelector("#note-title");
 const noteSubject = document.querySelector("#note-subject");
 const noteDescription = document.querySelector("#note-description");
 
-function editNotes(item){
-    editingNoteId=item.id;
-    noteTitle.value=item.title;
-    noteSubject.value=item.subject;
-    noteDescription.value=item.description;
+function editNotes(item) {
+    editingNoteId = item.id;
+    noteTitle.value = item.title;
+    noteSubject.value = item.subject;
+    noteDescription.value = item.description;
 
     noteModal.classList.add("open");
-    noteModal.setAttribute("aria-hidden","false");
+    noteModal.setAttribute("aria-hidden", "false");
 
 }
 
@@ -498,46 +509,43 @@ noteForm.addEventListener("submit", async (event) => {
         description: description
     };
     try {
-        if(editingNoteId===null){
+        if (editingNoteId === null) {
             const response = await fetch(
-            "http://localhost:3000/api/notes",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(newNote)
-            }
-        );
-        if (!response.ok) {
-            const errorData=await response.json();
-            throw new Error(errorData.message);
-        }
-        }else{
-            const response=await fetch(
-                `http://localhost:3000/api/notes/${editingNoteId}`,
+                `${API_URL}/notes`,
                 {
-                    method:"PUT",
-                    headers:{
-                        "Content-Type":"application/json"
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    body:JSON.stringify(newNote)
+                    body: JSON.stringify(newNote)
+                }
+            );
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message);
+            }
+        } else {
+            const response = await fetch(
+                `${API_URL}/notes/${editingNoteId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(newNote)
                 }
             );
 
-            if(!response.ok){
-                const errorData=await response.json();
+            if (!response.ok) {
+                const errorData = await response.json();
                 throw new Error(errorData.message);
             }
             highlightNoteId = editingNoteId;
-            editingNoteId=null;
+            editingNoteId = null;
         }
-        
 
-        // const createdNotes = await response.json();
-        // notes.push(createdNotes);
-        // renderNotes(notes);
-        // updateDashboardCounts();
+
+        
         await loadNotes();
         noteForm.reset();
         noteModal.classList.remove("open");
@@ -552,16 +560,17 @@ noteForm.addEventListener("submit", async (event) => {
 });
 
 async function deleteNote(id) {
+
     try {
         const response = await fetch(
-            `http://localhost:3000/api/notes/${id}`,
+            `${API_URL}/notes/${id}`,
             {
                 method: "DELETE"
             }
         );
 
         if (!response.ok) {
-            const errorData=await response.json();
+            const errorData = await response.json();
             throw new Error(errorData.message);
         }
 
@@ -611,21 +620,18 @@ announcementForm.addEventListener("submit", async (event) => {
     const date = announcementDate.value;
     const description = announcementDescription.value.trim();
     const newAnnouncement = {
-        // id: crypto.randomUUID(),//gives unique id for the  each announcements
+        
         title: title,
         date: date,
         description: description
     };
-    // announcements.push(newAnnouncement);
-    // localStorage.setItem("announcements",
-    //     JSON.stringify(announcements)
-    // );
+    
 
     try {
 
         if (editingAnnouncementId === null) {
             const response = await fetch(
-                "http://localhost:3000/api/announcements",
+                `${API_URL}/announcements`,
                 {
                     method: "POST",
                     headers: {
@@ -635,33 +641,31 @@ announcementForm.addEventListener("submit", async (event) => {
                 }
             );
             if (!response.ok) {
-                const errorData=await response.json();
-            throw new Error(errorData.message);
+                const errorData = await response.json();
+                throw new Error(errorData.message);
             }
-            // const createdAnnouncement=await response.json(); this was taking the object returned by the backend after storing in the announ array in backend
-            // announcements.push(createdAnnouncement);  here in frontend it created and obj called createdAnnouncement and added it in the frontend array
             
 
-        }else{
-            const response=await fetch(
-                `http://localhost:3000/api/announcements/${editingAnnouncementId}`,
+        } else {
+            const response = await fetch(
+                `${API_URL}/announcements/${editingAnnouncementId}`,
                 {
-                    method:"PUT",
-                    headers:{
-                        "Content-Type":"application/json"
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    body:JSON.stringify(newAnnouncement)
+                    body: JSON.stringify(newAnnouncement)
                 }
             );
-            if(!response.ok){
-                const errorData=await response.json();
-            throw new Error(errorData.message);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message);
             }
 
             highlightAnnouncementId = editingAnnouncementId;
-            editingAnnouncementId=null;
+            editingAnnouncementId = null;
         }
-        
+
         await loadAnnouncements();
 
 
@@ -677,27 +681,25 @@ announcementForm.addEventListener("submit", async (event) => {
 
 
 async function deleteAnnouncement(id) {
+    
     try {
         const response = await fetch(
-            `http://localhost:3000/api/announcements/${id}`,
+            `${API_URL}/announcements/${id}`,
             {
                 method: "DELETE"
             }
         );
 
         if (!response.ok) {
-            const errorData=await response.json();
+            const errorData = await response.json();
             throw new Error(errorData.message);
         }
 
-        // announcements=announcements.filter(
-        //     (item)=> item.id!==id
-        // );
+        
 
-        // loadAnnouncements();
+       
         await loadAnnouncements();
-        // renderAnnouncements(announcements);
-        // updateDashboardCounts();
+      
     } catch (error) {
         console.error("Error deleting announcement: ", error);
     }
@@ -730,17 +732,13 @@ function renderDashboardCards(items) {
 }
 
 function updateDashboardCounts() {
-    console.log("updateDashboardCounts called");
-    console.log("announcements:", announcements);
-    console.log("events:", events);
-    console.log("notes:", notes);
-
+    
 
     dashboardItems[0].count = announcements.length;
     dashboardItems[1].count = events.length;
     dashboardItems[2].count = notes.length;
 
-    console.log("dashboardItems:", dashboardItems);
+    
 
     renderDashboardCards(dashboardItems);
 }
