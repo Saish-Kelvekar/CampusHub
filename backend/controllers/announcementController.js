@@ -40,36 +40,7 @@ async function updateAnnouncement(req,res,next){
     
     try{
         
-        // const id=Number(req.params.id);
-        // const {title,date,description}=req.body;
-
-        //  const [existing] = await db.query(
-        //     "SELECT * FROM announcements WHERE id = ?",
-        //     [id]
-        // );
-
-        // if (existing.length === 0) {
-        //     return res.status(404).json({
-        //         message: "Announcement not found"
-        //     });
-        // }
-
-        // // 2. Update it
-        // await db.query(
-        //     `UPDATE announcements
-        //      SET title = ?, date = ?, description = ?
-        //      WHERE id = ?`,
-        //     [title, date, description, id]
-        // );
-
-        // // 3. Get the updated record
-        // const [rows] = await db.query(
-        //     "SELECT * FROM announcements WHERE id = ?",
-        //     [id]
-        // );
-
-        // // 4. Return updated record
-        // res.json(rows[0]);
+        
         const id = Number(req.params.id);
 
         if(!isValid(id)){
@@ -84,7 +55,7 @@ async function updateAnnouncement(req,res,next){
         
 
         const [existing] = await db.query(
-            `select * from announcements
+            `SELECT * FROM announcements
              WHERE id = ?`,
             [ id]
         );
@@ -99,9 +70,9 @@ async function updateAnnouncement(req,res,next){
             });
         }
         await db.query(
-            `update announcements
-            set title=?,date=?,description=?
-            where id=?`,[title,date,description,id]
+            `UPDATE announcements
+            SET title=?,date=?,description=?
+            WHERE id=?`,[title,date,description,id]
         );
         
 

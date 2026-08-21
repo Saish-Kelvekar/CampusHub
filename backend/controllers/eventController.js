@@ -82,7 +82,7 @@ async function updateEvent(req, res, next) {
         const { title, date, location } = req.body;
 
         const [existing] = await db.query(
-            `SElect * from events where id=?`,
+            `SELECT * FROM events WHERE id=?`,
             [eventId]
         );
 
@@ -94,13 +94,13 @@ async function updateEvent(req, res, next) {
             );
         }
         await db.query(
-            `update events
-            set title=?,date=?,location=?
-            where id=?`, [title, date, location, eventId]
+            `UPDATE events
+            SET title=?,date=?,location=?
+            WHERE id=?`, [title, date, location, eventId]
         );
         const [rows] = await db.query(
-            `select * from events
-            where id=?`, [eventId]
+            `SELECT * FROM events
+            WHERE id=?`, [eventId]
         );
 
         res.json(rows[0]);

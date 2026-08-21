@@ -1,10 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 
-const cors = require("cors")
+const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(express.json());//used for post reason  JSON---(parse)-->req.body
-const PORT = 3000;
+const PORT = process.env.PORT||3000;
 
 const db = require("./config/database");
 
@@ -28,14 +29,14 @@ app.get("/", (req, res) => {//syntax (path,callback)
 
 
 //<====ANNOUNCEMENTS API======>
-const announcementRoutes=require("./routes/announcementRoutes");
-app.use("/api/announcements",announcementRoutes);
+const announcementRoutes = require("./routes/announcementRoutes");
+app.use("/api/announcements", announcementRoutes);
 
 
 /*========EVENTS API==========*/
 
-const eventRoutes=require("./routes/eventRoutes");
-app.use("/api/events",eventRoutes);
+const eventRoutes = require("./routes/eventRoutes");
+app.use("/api/events", eventRoutes);
 
 
 
@@ -44,8 +45,8 @@ app.use("/api/events",eventRoutes);
 
 /*<======NOTES API======>*/
 
-const noteRoutes=require("./routes/noteRoutes");
-app.use("/api/notes",noteRoutes);
+const noteRoutes = require("./routes/noteRoutes");
+app.use("/api/notes", noteRoutes);
 
 
 
@@ -55,7 +56,7 @@ app.use("/api/notes",noteRoutes);
 
 // a fun having 4 para is used for error handler : the way express works
 
-const errorHandler=require("./middleware/errorHandler");
+const errorHandler = require("./middleware/errorHandler");
 app.use(errorHandler);
 app.listen(PORT, () => {//(platform,callback)
     console.log(`CampusHub server running on port ${PORT}`);

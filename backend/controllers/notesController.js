@@ -79,7 +79,7 @@ async function updateNote(req,res,next){
         const {title,subject,description}=req.body;
         
         const [existing]=await db.query(
-            `SELECT * fROM notes where id=?`,[notesId]
+            `SELECT * FROM notes WHERE id=?`,[notesId]
         );
 
         if(existing.length===0){
@@ -91,14 +91,14 @@ async function updateNote(req,res,next){
         }
 
         await db.query(
-            `Update notes
-            set title=?, subject=?,description=?
-            where id=?`,
+            `UPDATE notes
+            SET title=?, subject=?,description=?
+            WHERE id=?`,
             [title,subject,description,notesId]
         );
 
         const [rows]=await db.query(
-            "Select * from notes  where id=?",[notesId]
+            "SELECT * FROM notes WHERE id=?",[notesId]
         );
 
         res.json(rows[0]);
