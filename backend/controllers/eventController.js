@@ -22,12 +22,12 @@ async function createEvent(req, res, next) {
         const { title, date, location } = req.body;
 
         const [result] = await db.query(
-            `INSERT INTO EVENTS (TITLE,DATE,LOCATION)
+            `INSERT INTO events (TITLE,DATE,LOCATION)
             VALUES(?,?,?)`, [title, date, location]
         );
 
         const [rows] = await db.query(
-            "SELECT * FROM EVENTS WHERE id=?", [result.insertId]
+            "SELECT * FROM events WHERE id=?", [result.insertId]
         );
 
         res.status(201).json(rows[0]);
@@ -48,7 +48,7 @@ async function deleteEvent(req, res, next) {
             );
         }
         const [result] = await db.query(
-            "DELETE FROM EVENTS WHERE id=?", [id]
+            "DELETE FROM events WHERE id=?", [id]
         );
 
 

@@ -4,7 +4,7 @@ const {isValid}=require("../middleware/validation");
 async function getAnnouncements(req, res,next) {
     try {
         const [rows] = await db.query(
-            "SELECT * FROM ANNOUNCEMENTS"
+            "SELECT * FROM announcements"
         );
 
         res.json(rows);
@@ -21,13 +21,13 @@ async function createAnnouncement(req, res,next) {
         const { title, date, description } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO ANNOUNCEMENTS (title,date,description)
+            `INSERT INTO announcements (title,date,description)
             VALUES(?,?,?)`,
             [title, date, description]
         );
 
         const [rows] = await db.query(
-            "SELECT * FROM ANNOUNCEMENTS WHERE ID=?", [result.insertId]
+            "SELECT * FROM announcements WHERE ID=?", [result.insertId]
         );
         res.status(201).json(rows[0]);
     } catch (error) {
@@ -101,7 +101,7 @@ async function deleteAnnouncement(req, res,next)  {
             );
         }
         const [result] = await db.query(
-            "DELETE FROM ANNOUNCEMENTS WHERE ID=?", [id]
+            "DELETE FROM announcements WHERE ID=?", [id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({

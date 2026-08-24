@@ -4,7 +4,7 @@ const {isValid}=require("../middleware/validation");
 async function getNotes(req, res,next) {
     try {
         const [rows] = await db.query(
-            "SELECT * FROM NOTES"
+            "SELECT * FROM notes"
         );
         res.json(rows);
     }
@@ -18,13 +18,13 @@ async function createNote(req, res,next){
         const { title, subject, description } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO NOTES (TITLE,SUBJECT,DESCRIPTION)
+            `INSERT INTO notes (TITLE,SUBJECT,DESCRIPTION)
             VALUES(?,?,?)`, [title, subject, description]
 
         );
 
         const [rows] = await db.query(
-            "SELECT * FROM NOTES WHERE ID =?", [result.insertId]
+            "SELECT * FROM notes WHERE ID =?", [result.insertId]
         );
 
         res.status(201).json(rows[0]);
@@ -47,7 +47,7 @@ async function deleteNote(req, res,next) {
             );
         }
         const [result] = await db.query(
-            "DELETE FROM NOTES WHERE ID=?", [id]
+            "DELETE FROM notes WHERE ID=?", [id]
         );
 
         if (result.affectedRows === 0) {
