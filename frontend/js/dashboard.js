@@ -1,5 +1,5 @@
 const isLoggedIn = localStorage.getItem("loggedIn");
-const API_URL = "http://localhost:3000/api";
+const API_URL = "https://campushub-maw4.onrender.com/api";
 if (isLoggedIn !== "true") {
     window.location.href = "index.html";
 }
