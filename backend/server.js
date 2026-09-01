@@ -54,6 +54,13 @@ app.use("/api/notes", noteRoutes);
 
 
 
+
+
+//<=====AUTHENTICATION API ====>
+
+const authRoutes=require("./routes/authRoutes");
+app.use("/api/auth",authRoutes);
+
 // a fun having 4 para is used for error handler : the way express works
 
 const errorHandler = require("./middleware/errorHandler");
