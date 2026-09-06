@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-
+const API_URL = "https://campushub-maw4.onrender.com/api";
 const Login = ({ isOpen, onClose }) => {
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [emailError, setEmailError] = useState("")
     const [passwordError, setPasswordError] = useState("")
-
+    const [isLoading, setIsLoading] = useState(false)
+    const [apiError, setApiError] = useState("")
     return (
         <div id="login-modal" aria-hidden={!isOpen} className={isOpen ? "open" : ""}>
             <div className="login-box">
@@ -17,10 +18,11 @@ const Login = ({ isOpen, onClose }) => {
                 <h2>Login</h2>
 
                 <form id="login-form"
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                         e.preventDefault()
-                        console.log("Email:", email)
-                        console.log("Password:", password)
+                        setApiError("")
+                        setIsLoading(true)
+                        
                         setEmailError("")
                         setPasswordError("")
 
@@ -31,19 +33,51 @@ const Login = ({ isOpen, onClose }) => {
                             valid = false
                         }
 
-                        if (password.length<7) {
+                        if (password.length < 7) {
                             console.log("Password validation failed")
                             setPasswordError("Password should be at least 7 characters")
                             valid = false
                         }
 
                         if (!valid) {
+                            setIsLoading(false)
                             return
                         }
 
-                        console.log("Form is valid")
-                        console.log("Email:", email)
-                        console.log("Password:", password)
+                        try {
+                            const respone = await fetch(`${API_URL}/auth/login`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    email,
+                                    password
+                                }
+                                )
+                            })
+                            const data = await respone.json();
+                            if (!respone.ok) {
+                                setApiError(data.message||"Login failed")
+                                setIsLoading(false)
+                                return
+
+                            }
+                            
+                            localStorage.setItem("token", data.token)
+                            const token = localStorage.getItem("token")
+                            const meResponse = await fetch(`${API_URL}/auth/me`, {
+                                method: "GET",
+                                headers: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            })
+                            const meData = await meResponse.json()
+                            console.log("current user:", meData)
+
+                        } catch (error) {
+                            console.error("Login failed: ", error)
+                        }
                     }}
                 >
                     <label htmlFor="login-email">Email</label>
@@ -56,7 +90,7 @@ const Login = ({ isOpen, onClose }) => {
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    <p id="login-error-email" className={`login-error ${emailError ?"show":""}`}>{emailError}</p>
+                    <p id="login-error-email" className={`login-error ${emailError ? "show" : ""}`}>{emailError}</p>
 
                     <label htmlFor="login-password">Password</label>
 
@@ -75,9 +109,13 @@ const Login = ({ isOpen, onClose }) => {
                     </div>
 
                     <p id="login-error-password" className={`login-error ${passwordError ? "show" : ""}`}>{passwordError}</p>
-
-                    <button type="submit">
-                        Login
+                    {apiError &&(
+                        <p className='login-error show'>
+                            {apiError}
+                        </p>
+                    )}
+                    <button type="submit" disabled={isLoading}>
+                        {isLoading ? "Logging in ...":"Login"}
                     </button>
                 </form>
             </div>

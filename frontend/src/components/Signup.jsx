@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 
+const API_URL="https://campushub-maw4.onrender.com/api";
 const Signup = ({ isOpen, onClose }) => {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -22,7 +23,7 @@ const Signup = ({ isOpen, onClose }) => {
                 <h2>Sign Up</h2>
 
                 <form id="signup-form"
-                    onSubmit={(e) => {
+                    onSubmit={async(e) => {
                         e.preventDefault()
 
                         setEmailError("")
@@ -48,9 +49,31 @@ const Signup = ({ isOpen, onClose }) => {
                         if (!valid) {
                             return
                         }
+                        try{
+                            const response=await fetch(`${API_URL}/auth/register`,{
+                                method:"POST",
+                                headers:{
+                                    "Content-Type":"application/json"
+                                },
+                                body:JSON.stringify({
+                                    name,
+                                    email,
+                                    password
+                                })
+                            })
 
-                        console.log("Signup form is valid")
-                        console.log(name, email, password)
+                            const data=await response.json()
+                            if(!response.ok){
+                                console.log(data.message)
+                                return
+                            }
+                            console.log("Registration successful: ",data);
+                            
+                        }catch(error){
+                            console.error("Registration failed:",error);
+                        }
+
+                       
                     }}
                 >
                     <label htmlFor="signup-name">Name</label>
@@ -112,6 +135,8 @@ const Signup = ({ isOpen, onClose }) => {
                         <input
                             type={showConfirmPassword ? "text" : "password"}
                             id="signup-confirm-password"
+                            value={confirmPassword}
+                            onChange={(e)=>setConfirmPassword(e.target.value)}
                             required
                         />
 
