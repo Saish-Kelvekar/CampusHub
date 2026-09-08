@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import AnnouncementSection from '../components/dashboard/AnnouncementSection';
+import EventSection from '../components/dashboard/EventSection';
+import NotesSection from '../components/dashboard/NotesSection';
+import DashboardNavbar from '../components/dashboard/DashboardNavbar';
 const API_URL = "https://campushub-maw4.onrender.com/api"
 
 const Dashboard = () => {
@@ -9,18 +13,24 @@ const Dashboard = () => {
     const [announcementDate, setAnnouncementDate] = useState("")
     const [announcementDescription, setAnnouncementDescription] = useState("")
     const [editingAnnouncementId, setEditingAnnouncementId] = useState(null)
-
+    const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false)
 
     const [eventTitle, setEventTitle] = useState("")
     const [eventDate, setEventDate] = useState("")
     const [eventLocation, setEventLocation] = useState("")
     const [editingEventId, setEditingEventId] = useState(null)
-
+    const [isEventOpen, setIsEventOpen] = useState(false)
 
     const [noteTitle, setNoteTitle] = useState("")
     const [noteSubject, setNoteSubject] = useState("")
     const [noteDescription, setNoteDescription] = useState("")
     const [editingNoteId, setEditingNoteId] = useState(null)
+    const [isNoteOpen, setIsNoteOpen] = useState(false)
+
+    const [deletingAnnouncementIds, setDeletingAnnouncementIds] = useState([])
+    const [deletingEventIds, setDeletingEventIds] = useState([])
+    const [deletingNoteIds, setDeletingNoteIds] = useState([])
+    const DELETE_ANIMATION_MS = 450
     const loadAnnouncements = async () => {
         try {
             const response = await fetch(`${API_URL}/announcements`)
@@ -99,6 +109,7 @@ const Dashboard = () => {
             setAnnouncementDate("")
             setAnnouncementDescription("")
             setEditingAnnouncementId(null)
+            setIsAnnouncementOpen(false)
         } catch (error) {
             console.error("error adding announcement:", error);
 
@@ -106,6 +117,10 @@ const Dashboard = () => {
     }
 
     const handleDeleteAnnouncement = async (id) => {
+        if (deletingAnnouncementIds.includes(id)) return
+        setDeletingAnnouncementIds((prev) => [...prev, id])
+        // Let the card delete animation play before removing the item
+        await new Promise((resolve) => setTimeout(resolve, DELETE_ANIMATION_MS))
         try {
             const respone = await fetch(`${API_URL}/announcements/${id}`, {
                 method: "DELETE"
@@ -120,14 +135,18 @@ const Dashboard = () => {
                 ))
         } catch (error) {
             console.error("Error deleting announcement:", error)
+        } finally {
+            setDeletingAnnouncementIds((prev) => prev.filter((itemId) => itemId !== id))
         }
     }
 
     const handleEditAnnouncement = (announcement) => {
+
         setEditingAnnouncementId(announcement.id)
         setAnnouncementTitle(announcement.title)
         setAnnouncementDate(announcement.date)
         setAnnouncementDescription(announcement.description)
+        setIsAnnouncementOpen(true)
     }
 
     const handleEventSubmit = async (e) => {
@@ -165,6 +184,7 @@ const Dashboard = () => {
             setEventDate("")
             setEventLocation("")
             setEditingEventId(null)
+            setIsEventOpen(false)
         } catch (error) {
             console.error("error adding event:", error);
 
@@ -172,6 +192,10 @@ const Dashboard = () => {
     }
 
     const handleDeleteEvent = async (id) => {
+        if (deletingEventIds.includes(id)) return
+        setDeletingEventIds((prev) => [...prev, id])
+        // Let the card delete animation play before removing the item
+        await new Promise((resolve) => setTimeout(resolve, DELETE_ANIMATION_MS))
         try {
             const respone = await fetch(`${API_URL}/events/${id}`, {
                 method: "DELETE"
@@ -186,99 +210,136 @@ const Dashboard = () => {
                 ))
         } catch (error) {
             console.error("Error deleting event:", error)
+        } finally {
+            setDeletingEventIds((prev) => prev.filter((itemId) => itemId !== id))
         }
     }
 
-    
+
     const handleEditEvent = (event) => {
         setEditingEventId(event.id)
         setEventTitle(event.title)
         setEventDate(event.date)
         setEventLocation(event.location)
+        setIsEventOpen(true)
     }
 
 
     const handleNoteSubmit = async (e) => {
-    e.preventDefault()
+        e.preventDefault()
 
-    try {
-        const isEditing = editingNoteId !== null
+        try {
+            const isEditing = editingNoteId !== null
 
-        const url = isEditing
-            ? `${API_URL}/notes/${editingNoteId}`
-            : `${API_URL}/notes`
+            const url = isEditing
+                ? `${API_URL}/notes/${editingNoteId}`
+                : `${API_URL}/notes`
 
-        const method = isEditing ? "PUT" : "POST"
+            const method = isEditing ? "PUT" : "POST"
 
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                title: noteTitle,
-                subject: noteSubject,
-                description: noteDescription
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: noteTitle,
+                    subject: noteSubject,
+                    description: noteDescription
+                })
             })
-        })
 
-        const data = await response.json()
+            const data = await response.json()
 
-        if (!response.ok) {
-            throw new Error(data.message)
-        }
+            if (!response.ok) {
+                throw new Error(data.message)
+            }
 
-        if (isEditing) {
-            setNotes((previousNotes) =>
-                previousNotes.map((note) =>
-                    note.id === editingNoteId ? data : note
+            if (isEditing) {
+                setNotes((previousNotes) =>
+                    previousNotes.map((note) =>
+                        note.id === editingNoteId ? data : note
+                    )
                 )
-            )
-        } else {
-            setNotes((previousNotes) => [
-                ...previousNotes,
-                data
-            ])
+            } else {
+                setNotes((previousNotes) => [
+                    ...previousNotes,
+                    data
+                ])
+            }
+
+            setNoteTitle("")
+            setNoteSubject("")
+            setNoteDescription("")
+            setEditingNoteId(null)
+            setIsNoteOpen(false);
+
+        } catch (error) {
+            console.error("Error saving note:", error)
         }
+    }
+
+    const handleDeleteNote = async (id) => {
+        if (deletingNoteIds.includes(id)) return
+        setDeletingNoteIds((prev) => [...prev, id])
+        // Let the card delete animation play before removing the item
+        await new Promise((resolve) => setTimeout(resolve, DELETE_ANIMATION_MS))
+        try {
+            const response = await fetch(`${API_URL}/notes/${id}`, {
+                method: "DELETE"
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.message)
+            }
+
+            setNotes((previousNotes) =>
+                previousNotes.filter((note) => note.id !== id)
+            )
+
+        } catch (error) {
+            console.error("Error deleting note:", error)
+        } finally {
+            setDeletingNoteIds((prev) => prev.filter((itemId) => itemId !== id))
+        }
+    }
+
+    const handleEditNote = (note) => {
+        setEditingNoteId(note.id)
+        setNoteTitle(note.title)
+        setNoteSubject(note.subject)
+        setNoteDescription(note.description)
+        setIsNoteOpen(true)
+    }
+
+    const closeAnnouncementModal = () => {
+        setIsAnnouncementOpen(false)
+        setEditingAnnouncementId(null)
+        setAnnouncementTitle("")
+        setAnnouncementDate("")
+        setAnnouncementDescription("")
+    }
+
+    const closeEventModal = () => {
+        setIsEventOpen(false)
+        setEditingEventId(null)
+
+        setEventTitle("")
+        setEventDate("")
+        setEventLocation("")
+    }
+
+    const closeNoteModal = () => {
+        setIsNoteOpen(false)
+        setEditingNoteId(null)
 
         setNoteTitle("")
         setNoteSubject("")
         setNoteDescription("")
-        setEditingNoteId(null)
 
-    } catch (error) {
-        console.error("Error saving note:", error)
     }
-}
-
-const handleDeleteNote = async (id) => {
-    try {
-        const response = await fetch(`${API_URL}/notes/${id}`, {
-            method: "DELETE"
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-            throw new Error(data.message)
-        }
-
-        setNotes((previousNotes) =>
-            previousNotes.filter((note) => note.id !== id)
-        )
-
-    } catch (error) {
-        console.error("Error deleting note:", error)
-    }
-}
-
-const handleEditNote = (note) => {
-    setEditingNoteId(note.id)
-    setNoteTitle(note.title)
-    setNoteSubject(note.subject)
-    setNoteDescription(note.description)
-}
-
     useEffect(() => {
         loadAnnouncements()
         loadEvents()
@@ -286,74 +347,194 @@ const handleEditNote = (note) => {
     }, [])
     return (
         <>
-            <form onSubmit={handleAnnouncementSubmit}>
-                <input type="text"
-                    placeholder='Announcement title'
-                    value={announcementTitle}
-                    onChange={(e) => setAnnouncementTitle(e.target.value)} />
-                <input type="date"
-                    placeholder='Announcement date'
-                    value={announcementDate}
-                    onChange={(e) => setAnnouncementDate(e.target.value)} />
-                <textarea placeholder='Announcement description'
-                    value={announcementDescription}
-                    onChange={(e) => setAnnouncementDescription(e.target.value)} />
-                <button type='Submit'>{editingAnnouncementId !== null ? "Update Event" : "Add Event"}</button>
-            </form>
+            {isAnnouncementOpen && (
+                <div className="modal-overlay">
 
-            <form onSubmit={handleEventSubmit}>
-                <input type="text"
-                    placeholder='Event title'
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)} />
-                <input type="date"
-                    placeholder='Event date'
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)} />
-                <textarea placeholder='Event location'
-                    value={eventLocation}
-                    onChange={(e) => setEventLocation(e.target.value)} />
-                <button type='Submit'>{editingEventId !== null ? "Update Event" : "Add event"}</button>
-            </form>
+                    <div className="modal">
 
-            <form onSubmit={handleNoteSubmit}>
+                        <h2>
+                            {editingAnnouncementId !== null
+                                ? "Edit Announcement"
+                                : "Add Announcement"}
+                        </h2>
 
-    <input
-        type="text"
-        placeholder="Note title"
-        value={noteTitle}
-        onChange={(e) => setNoteTitle(e.target.value)}
-    />
+                        <form onSubmit={handleAnnouncementSubmit} className="modal-form">
 
-    <input
-        type="text"
-        placeholder="Subject"
-        value={noteSubject}
-        onChange={(e) => setNoteSubject(e.target.value)}
-    />
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Announcement title"
+                                value={announcementTitle}
+                                onChange={(e) =>
+                                    setAnnouncementTitle(e.target.value)
+                                }
+                            />
 
-    <textarea
-        placeholder="Note description"
-        value={noteDescription}
-        onChange={(e) => setNoteDescription(e.target.value)}
-    />
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={announcementDate}
+                                onChange={(e) =>
+                                    setAnnouncementDate(e.target.value)
+                                }
+                            />
 
-    <button type="submit">
-        {editingNoteId !== null
-            ? "Update Note"
-            : "Add Note"}
-    </button>
+                            <textarea
+                                placeholder="Announcement description"
+                                className="form-textarea"
+                                value={announcementDescription}
+                                onChange={(e) =>
+                                    setAnnouncementDescription(e.target.value)
+                                }
+                            />
 
-</form>
-            <header>
-                <nav>
-                    <a href="/" className='logo'>CampusHub</a>
-                    <div className='dashboard-user'>
-                        <span>Username</span>
-                        <button id='logout-btn' type='button'>Logout</button>
+                            <button type="submit" className="btn-submit">
+                                {editingAnnouncementId !== null
+                                    ? "Update Announcement"
+                                    : "Add Announcement"}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn-cancel"
+                                onClick={closeAnnouncementModal}
+                            >
+                                Cancel
+                            </button>
+
+                        </form>
+
                     </div>
-                </nav>
-            </header>
+
+                </div>
+            )}
+
+            {isEventOpen && (
+                <div className="modal-overlay">
+
+                    <div className="modal">
+
+                        <h2>
+                            {editingEventId !== null
+                                ? "Edit Event"
+                                : "Add Event"}
+                        </h2>
+
+                        <form onSubmit={handleEventSubmit} className="modal-form">
+
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Event title"
+                                value={eventTitle}
+                                onChange={(e) =>
+                                    setEventTitle(e.target.value)
+                                }
+                            />
+
+                            <input
+                                type="date"
+                                className="form-input"
+                                value={eventDate}
+                                onChange={(e) =>
+                                    setEventDate(e.target.value)
+                                }
+                            />
+
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Event location"
+                                value={eventLocation}
+                                onChange={(e) =>
+                                    setEventLocation(e.target.value)
+                                }
+                            />
+
+                            <button type="submit" className="btn-submit">
+                                {editingEventId !== null
+                                    ? "Update Event"
+                                    : "Add Event"}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn-cancel"
+                                onClick={closeEventModal}
+                            >
+                                Cancel
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            )}
+
+            {isNoteOpen && (
+                <div className="modal-overlay">
+
+                    <div className="modal">
+
+                        <h2>
+                            {editingNoteId !== null
+                                ? "Edit Note"
+                                : "Add Note"}
+                        </h2>
+
+                        <form onSubmit={handleNoteSubmit} className="modal-form">
+
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Note title"
+                                value={noteTitle}
+                                onChange={(e) =>
+                                    setNoteTitle(e.target.value)
+                                }
+                            />
+
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Subject"
+                                value={noteSubject}
+                                onChange={(e) =>
+                                    setNoteSubject(e.target.value)
+                                }
+                            />
+
+                            <textarea
+                                placeholder="Note description"
+                                className="form-textarea"
+                                value={noteDescription}
+                                onChange={(e) =>
+                                    setNoteDescription(e.target.value)
+                                }
+                            />
+
+                            <button type="submit" className="btn-submit">
+                                {editingNoteId !== null
+                                    ? "Update Note"
+                                    : "Add Note"}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn-cancel"
+                                onClick={ closeNoteModal}
+                            >
+                                Cancel
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            )}
+            <DashboardNavbar />
             <main id='dashboard'>
                 <section className='dashboard-header'>
                     <h1>Dashboard</h1>
@@ -385,110 +566,32 @@ const handleEditNote = (note) => {
 
 
                 {/* Announcements */}
-                <section id="announcements" className="dashboard-section">
-
-                    <div className="section-header">
-                        <h2>Announcements</h2>
-
-                        <button id="add-announcements-btn" type="button">
-                            Add Announcement
-                        </button>
-                    </div>
-
-                    <div id="announcement-list">
-                        {announcements.length === 0 ? (
-                            <p>No announcements available.</p>
-                        ) : (
-                            announcements.map((announcement) => (
-                                <article key={announcement.id}>
-                                    <h3>{announcement.title}</h3>
-                                    <small>{announcement.date}</small>
-                                    <p>{announcement.description}</p>
-                                    <div className="card-action">
-                                        <button className='edit-btn' onClick={() => handleEditAnnouncement(announcement)}>Edit</button>
-                                        <button className="delete-btn" onClick={() => handleDeleteAnnouncement(announcement.id)}>Delete</button>
-                                    </div>
-                                </article>
-                            ))
-                        )}
-                    </div>
-
-                </section>
+                <AnnouncementSection
+                    announcements={announcements}
+                    onEdit={handleEditAnnouncement}
+                    onDelete={handleDeleteAnnouncement}
+                    onAdd={() => setIsAnnouncementOpen(true)}
+                    deletingIds={deletingAnnouncementIds}
+                />
 
 
                 {/* Events */}
-                <section id="events" className="dashboard-section">
-
-                    <div className="section-header">
-                        <h2>Upcoming Events</h2>
-
-                        <button id="add-events-btn" type="button">
-                            Add Event
-                        </button>
-                    </div>
-
-                    <div id="event-list">
-                        {events.length === 0 ? (
-                            <p>No events available</p>
-                        ) : (
-                            events.map((event) => (
-                                <article key={event.id}>
-                                    <h3>{event.title}</h3>
-                                    <p>Date: {event.date}</p>
-                                    <p>Location: {event.location}</p>
-                                    <div className="card-actions">
-                                        <button className='edit-btn' onClick={() => handleEditEvent(event)}>Edit</button>
-                                        <button className="delete-btn" onClick={() => handleDeleteEvent(event.id)}>Delete</button>
-                                    </div>
-                                </article>
-                            ))
-                        )}
-                    </div>
-
-                </section>
+                <EventSection
+                    events={events}
+                    onEdit={handleEditEvent}
+                    onDelete={handleDeleteEvent}
+                    onAdd={() => setIsEventOpen(true)}
+                    deletingIds={deletingEventIds} />
 
 
                 {/* Notes */}
-                <section id="notes" className="dashboard-section">
-
-                    <div className="section-header">
-                        <h2>Study Notes</h2>
-
-                        <button id="add-notes-btn" type="button">
-                            Add Note
-                        </button>
-                    </div>
-
-                    <div id="note-list">
-                        {notes.length === 0 ? (
-                            <p>No notes availabel.</p>
-                        ) : (
-                            notes.map((note) => (
-                                <article key={note.id}>
-                                    <h3>{note.title}</h3>
-                                    <small>{note.subject}</small>
-                                    <p>{note.description}</p>
-                                    <div className='card-actions'>
-                                        <button
-    className="edit-btn"
-    onClick={() => handleEditNote(note)}
->
-    Edit
-</button>
-
-<button
-    className="delete-btn"
-    onClick={() => handleDeleteNote(note.id)}
->
-    Delete
-</button>
-                                    </div>
-                                </article>
-                            ))
-                        )}
-                    </div>
-
-                </section>
+                <NotesSection
+                    notes={notes}
+                    onEdit={handleEditNote}
+                    onDelete={handleDeleteNote}
+                    onAdd={() => setIsNoteOpen(true)}
+                    deletingIds={deletingNoteIds}
+                />
             </main>
         </>
     )
