@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
 
-const Navbar = (props) => {
+const Navbar = () => {
+    const navigate=useNavigate()
     return (
         <header>
             <nav aria-label="Primary">
@@ -11,13 +13,13 @@ const Navbar = (props) => {
                     <a href="#features">Features</a>
                     <a href="#about">About</a>
 
-                    <button type="button" onClick={()=>{
+                    <button type="button" onClick={()=>
                         
-                        props.onLogin()}}>
+                        navigate("/login")}>
                         Login
                     </button>
 
-                    <button type="button" onClick={props.onSignup}>
+                    <button type="button" onClick={()=>navigate('/signup')}>
                         Sign Up
                     </button>
                 </div>
