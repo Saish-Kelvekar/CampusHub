@@ -74,7 +74,7 @@ const Login = () => {
                                     }
                                 })
                                 const meData = await meResponse.json()
-                                console.log("current user:", meData)
+                                
                                 navigate("/dashboard")
                             } catch (error) {
                                 console.error("Login failed: ", error)
