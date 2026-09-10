@@ -22,7 +22,7 @@ async function createAnnouncement(req, res,next) {
         
         const [result] = await db.query(
             `INSERT INTO announcements (title,date,description,user_id)
-            // VALUES(?,?,?,?)`,
+            VALUES(?,?,?,?)`,
             [title, date, description,req.user.id]
         );
 
