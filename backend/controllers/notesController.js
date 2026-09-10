@@ -4,7 +4,7 @@ const {isValid}=require("../middleware/validation");
 async function getNotes(req, res,next) {
     try {
         const [rows] = await db.query(
-            "SELECT * FROM notes"
+            "SELECT * FROM notes WHERE  user_id=?",[req.user.id]
         );
         res.json(rows);
     }
@@ -18,13 +18,13 @@ async function createNote(req, res,next){
         const { title, subject, description } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO notes (TITLE,SUBJECT,DESCRIPTION)
-            VALUES(?,?,?)`, [title, subject, description]
+            `INSERT INTO notes (TITLE,SUBJECT,DESCRIPTION,user_id)
+            VALUES(?,?,?,?)`, [title, subject, description,req.user.id]
 
         );
 
         const [rows] = await db.query(
-            "SELECT * FROM notes WHERE ID =?", [result.insertId]
+            "SELECT * FROM notes WHERE ID =? and user_id=?", [result.insertId,req.user.id]
         );
 
         res.status(201).json(rows[0]);
@@ -47,7 +47,7 @@ async function deleteNote(req, res,next) {
             );
         }
         const [result] = await db.query(
-            "DELETE FROM notes WHERE ID=?", [id]
+            "DELETE FROM notes WHERE ID=? and user_id=?", [id,req.user.id]
         );
 
         if (result.affectedRows === 0) {
@@ -79,7 +79,7 @@ async function updateNote(req,res,next){
         const {title,subject,description}=req.body;
         
         const [existing]=await db.query(
-            `SELECT * FROM notes WHERE id=?`,[notesId]
+            `SELECT * FROM notes WHERE id=? and user_id=?`,[notesId,req.user.id]
         );
 
         if(existing.length===0){
@@ -93,12 +93,12 @@ async function updateNote(req,res,next){
         await db.query(
             `UPDATE notes
             SET title=?, subject=?,description=?
-            WHERE id=?`,
-            [title,subject,description,notesId]
+            WHERE id=? and user_id=?`,
+            [title,subject,description,notesId,req.user.id]
         );
 
         const [rows]=await db.query(
-            "SELECT * FROM notes WHERE id=?",[notesId]
+            "SELECT * FROM notes WHERE id=? and user_id=?",[notesId,req.user.id]
         );
 
         res.json(rows[0]);

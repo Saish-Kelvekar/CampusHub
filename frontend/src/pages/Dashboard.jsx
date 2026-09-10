@@ -50,8 +50,13 @@ const Dashboard = () => {
     }
 
     const loadEvents = async () => {
-        try {
-            const response = await fetch(`${API_URL}/events`)
+        
+        try {const token=localStorage.getItem("token")
+            const response = await fetch(`${API_URL}/events`,{
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+            })
             if (!response.ok) {
                 const errorData = await response.json()
                 throw new Error(errorData.message)
@@ -64,8 +69,12 @@ const Dashboard = () => {
         }
     }
     const loadNotes = async () => {
-        try {
-            const response = await fetch(`${API_URL}/notes`)
+        try {const token=localStorage.getItem("token")
+            const response = await fetch(`${API_URL}/notes`,{
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+            })
             if (!response.ok) {
                 const errorData = await response.json()
                 throw new Error(errorData.message)
@@ -166,10 +175,12 @@ const Dashboard = () => {
             const isEditing = editingEventId !== null
             const url = isEditing ? `${API_URL}/events/${editingEventId}` : `${API_URL}/events`
             const method = isEditing ? "PUT" : "POST"
+            const token=localStorage.getItem("token")
             const respone = await fetch(url, {
                 method: method,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization":`Bearer ${token}`
                 },
                 body: JSON.stringify({
                     title: eventTitle,
@@ -198,7 +209,7 @@ const Dashboard = () => {
             setIsEventOpen(false)
         } catch (error) {
             console.error("error adding event:", error);
-
+            
         }
     }
 
@@ -207,9 +218,12 @@ const Dashboard = () => {
         setDeletingEventIds((prev) => [...prev, id])
         // Let the card delete animation play before removing the item
         await new Promise((resolve) => setTimeout(resolve, DELETE_ANIMATION_MS))
-        try {
+        try {const token=localStorage.getItem("token")
             const respone = await fetch(`${API_URL}/events/${id}`, {
-                method: "DELETE"
+                method: "DELETE",
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
             })
             const data = await respone.json()
             if (!respone.ok) {
@@ -239,7 +253,7 @@ const Dashboard = () => {
     const handleNoteSubmit = async (e) => {
         e.preventDefault()
 
-        try {
+        try {const token=localStorage.getItem("token")
             const isEditing = editingNoteId !== null
 
             const url = isEditing
@@ -251,7 +265,8 @@ const Dashboard = () => {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization":`Bearer ${token}`
                 },
                 body: JSON.stringify({
                     title: noteTitle,
@@ -295,9 +310,12 @@ const Dashboard = () => {
         setDeletingNoteIds((prev) => [...prev, id])
         // Let the card delete animation play before removing the item
         await new Promise((resolve) => setTimeout(resolve, DELETE_ANIMATION_MS))
-        try {
+        try {const token=localStorage.getItem("token")
             const response = await fetch(`${API_URL}/notes/${id}`, {
-                method: "DELETE"
+                method: "DELETE",
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
             })
 
             const data = await response.json()
