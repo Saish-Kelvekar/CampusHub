@@ -487,3 +487,384 @@
     transform: scale(1.35);
   }
 }
+
+/* ============ Dashboard navbar Account / Logout buttons ============ */
+
+.dashboard-nav-links .btn-account,
+.dashboard-nav-links .btn-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.15rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease,
+    color 180ms ease, border-color 180ms ease;
+}
+
+.dashboard-nav-links .btn-account {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.dashboard-nav-links .btn-account:hover,
+.dashboard-nav-links .btn-account:focus-visible {
+  background: #fff;
+  border-color: rgba(37, 99, 235, 0.4);
+  color: var(--primary-hover);
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14);
+}
+
+.dashboard-nav-links .btn-account:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.dashboard-nav-links .btn-logout,
+.account-actions .btn-logout {
+  border: 0;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+}
+
+.dashboard-nav-links .btn-logout:hover,
+.dashboard-nav-links .btn-logout:focus-visible,
+.account-actions .btn-logout:hover,
+.account-actions .btn-logout:focus-visible {
+  background: linear-gradient(135deg, var(--primary-hover), #0284c7);
+  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.32);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.dashboard-nav-links .btn-logout:active,
+.account-actions .btn-logout:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+}
+
+.btn-icon {
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* ============ Account page ============ */
+
+.account-page {
+  max-width: 760px;
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.account-header {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius-lg) + 6px);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: card-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.account-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0.75rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.account-header h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.account-header p {
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.account-card {
+  margin-top: 1.5rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius-lg) + 2px);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: card-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 80ms;
+}
+
+.account-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.account-avatar {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 0 0 6px var(--primary-soft), 0 12px 24px rgba(37, 99, 235, 0.25);
+}
+
+.account-profile h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.account-email {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.account-role {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.account-details {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1.4rem 0 0;
+  padding: 0;
+}
+
+.account-details > div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.95rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-strong);
+}
+
+.account-details dt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.account-details dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.account-role-text {
+  text-transform: capitalize;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.account-actions .btn-logout,
+.btn-account-primary,
+.btn-account-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.35rem;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease,
+    color 180ms ease, border-color 180ms ease;
+}
+
+.btn-account-primary {
+  border: 0;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.25);
+}
+
+.btn-account-primary:hover,
+.btn-account-primary:focus-visible {
+  background: linear-gradient(135deg, var(--primary-hover), #0284c7);
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 18px 32px rgba(37, 99, 235, 0.32);
+}
+
+.btn-account-primary:active {
+  transform: translateY(0);
+}
+
+.btn-account-ghost {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.btn-account-ghost:hover,
+.btn-account-ghost:focus-visible {
+  background: #fff;
+  border-color: rgba(37, 99, 235, 0.4);
+  color: var(--primary-hover);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.account-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+
+.account-state h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.account-state p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.account-skeleton-avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.25) 25%, rgba(148, 163, 184, 0.45) 50%, rgba(148, 163, 184, 0.25) 75%);
+  background-size: 200% 100%;
+  animation: account-shimmer 1.2s ease-in-out infinite;
+}
+
+.account-skeleton-lines {
+  display: grid;
+  gap: 0.6rem;
+  width: min(100%, 22rem);
+}
+
+.account-skeleton-lines span {
+  height: 0.9rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.25) 25%, rgba(148, 163, 184, 0.45) 50%, rgba(148, 163, 184, 0.25) 75%);
+  background-size: 200% 100%;
+  animation: account-shimmer 1.2s ease-in-out infinite;
+}
+
+.account-skeleton-lines span:nth-child(2) {
+  width: 75%;
+  margin: 0 auto;
+}
+
+.account-skeleton-lines span:nth-child(3) {
+  width: 55%;
+  margin: 0 auto;
+}
+
+@keyframes account-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-nav-links .btn-account,
+  .dashboard-nav-links .btn-logout {
+    flex: 1 1 auto;
+  }
+
+  .account-profile {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .account-details > div {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .account-actions .btn-logout,
+  .btn-account-primary,
+  .btn-account-ghost {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-nav-links .btn-account,
+  .dashboard-nav-links .btn-logout,
+  .btn-account-primary,
+  .btn-account-ghost,
+  .account-header,
+  .account-card {
+    animation: none;
+    transition: none;
+  }
+
+  .account-skeleton-avatar,
+  .account-skeleton-lines span {
+    animation: none;
+  }
+}

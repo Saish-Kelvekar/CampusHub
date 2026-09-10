@@ -14,16 +14,23 @@ const DashboardNavbar = () => {
                     <a href="#announcements">Announcements</a>
                     <a href="#events">Events</a>
                     <a href="#notes">Notes</a>
-                    <button type="button" onClick={() => navigate("/account")}>
+                    <button
+                        type="button"
+                        className="btn-account"
+                        onClick={() => navigate("/account")}
+                    >
+                        <span className="btn-icon" aria-hidden="true">👤</span>
                         Account
                     </button>
                     <button
                         type="button"
+                        className="btn-logout"
                         onClick={() => {
                             localStorage.removeItem("token");
                             navigate("/");
                         }}
                     >
+                        <span className="btn-icon" aria-hidden="true">⎋</span>
                         Logout
                     </button>
                 </div>
