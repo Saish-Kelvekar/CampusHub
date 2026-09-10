@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import ProtectedRoute from "./components/ProtectedRoute";
+import Account from "./pages/Account";
 
 const App = () => {
   return (
@@ -16,8 +17,14 @@ const App = () => {
             <Dashboard />
           </ProtectedRoute>
         } />
+        <Route path="/account" element={
+          <ProtectedRoute>
+            <Account />
+          </ProtectedRoute>
+        } />
         <Route path='/signup' element={<Signup />} />
         <Route path='/login' element={<Login />} />
+        
       </Routes>
     </BrowserRouter>
   )

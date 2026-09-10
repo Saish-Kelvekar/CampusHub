@@ -78,6 +78,7 @@ const login=async(req,res)=>{
         const token=jwt.sign(
             {//payload
                 id:user.id,
+                name:user.name,
                 email:user.email,
                 role:user.role
             },
@@ -107,9 +108,9 @@ const login=async(req,res)=>{
 };
 
 const getMe=(req,res)=>{
-    res.status(200).json({
-        user:req.user
-    })
+    res.status(200).json(
+        req.user
+    )
 }
 module.exports={
     register,

@@ -14,6 +14,9 @@ const DashboardNavbar = () => {
                     <a href="#announcements">Announcements</a>
                     <a href="#events">Events</a>
                     <a href="#notes">Notes</a>
+                    <button type="button" onClick={() => navigate("/account")}>
+                        Account
+                    </button>
                     <button
                         type="button"
                         onClick={() => {

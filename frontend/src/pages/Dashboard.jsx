@@ -127,7 +127,7 @@ const Dashboard = () => {
             setIsAnnouncementOpen(false)
         } catch (error) {
             console.error("error adding announcement:", error);
-            alert(error.message)
+            
 
         }
     }
