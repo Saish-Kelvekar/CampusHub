@@ -4,7 +4,7 @@ const {isValid}=require("../middleware/validation");
 async function getAnnouncements(req, res,next) {
     try {
         const [rows] = await db.query(
-            "SELECT * FROM announcements"
+            "SELECT * FROM announcements WHERE user_id=?",[req.user.id]
         );
 
         res.json(rows);
@@ -21,13 +21,13 @@ async function createAnnouncement(req, res,next) {
         const { title, date, description } = req.body;
         
         const [result] = await db.query(
-            `INSERT INTO announcements (title,date,description)
-            VALUES(?,?,?)`,
-            [title, date, description]
+            `INSERT INTO announcements (title,date,description,user_id)
+            // VALUES(?,?,?,?)`,
+            [title, date, description,req.user.id]
         );
 
         const [rows] = await db.query(
-            "SELECT * FROM announcements WHERE ID=?", [result.insertId]
+            "SELECT * FROM announcements WHERE ID=? and user_id=?", [result.insertId,req.user.id]
         );
         res.status(201).json(rows[0]);
     } catch (error) {
@@ -56,8 +56,8 @@ async function updateAnnouncement(req,res,next){
 
         const [existing] = await db.query(
             `SELECT * FROM announcements
-             WHERE id = ?`,
-            [ id]
+             WHERE id = ? and user_id=?`,
+            [ id,req.user.id]
         );
 
        
@@ -72,13 +72,13 @@ async function updateAnnouncement(req,res,next){
         await db.query(
             `UPDATE announcements
             SET title=?,date=?,description=?
-            WHERE id=?`,[title,date,description,id]
+            WHERE id=? and user_id=?`,[title,date,description,id,req.user.id]
         );
         
 
         const [rows] = await db.query(
-            "SELECT * FROM announcements WHERE id = ?",
-            [id]
+            "SELECT * FROM announcements WHERE id = ? and user_id=?",
+            [id,req.user.id]
         );
 
         
@@ -101,7 +101,7 @@ async function deleteAnnouncement(req, res,next)  {
             );
         }
         const [result] = await db.query(
-            "DELETE FROM announcements WHERE ID=?", [id]
+            "DELETE FROM announcements WHERE ID=? and user_id=?", [id,req.user.id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({

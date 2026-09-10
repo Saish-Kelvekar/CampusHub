@@ -1,8 +1,9 @@
 import React from 'react'
-
+import { useNavigate } from 'react-router-dom'
 const DashboardNavbar = () => {
-  return (
-    <header>
+    const navigate = useNavigate()
+    return (
+        <header>
             <nav className="dashboard-navbar">
                 <div className="logo">
                     <h2>CampusHub</h2>
@@ -13,10 +14,19 @@ const DashboardNavbar = () => {
                     <a href="#announcements">Announcements</a>
                     <a href="#events">Events</a>
                     <a href="#notes">Notes</a>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            localStorage.removeItem("token");
+                            navigate("/");
+                        }}
+                    >
+                        Logout
+                    </button>
                 </div>
             </nav>
         </header>
-  )
+    )
 }
 
 export default DashboardNavbar

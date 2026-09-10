@@ -1,27 +1,27 @@
 const express=require("express");
 const router=express.Router();
-const db = require("../config/database");
+
 const {validateAnnouncement}=require("../middleware/validation")
 
 //<=== Announcement controller===>
 
 const {getAnnouncements,createAnnouncement,deleteAnnouncement,updateAnnouncement}=require("../controllers/announcementController");
+const authMiddleware=require("../middleware/authMiddleware")
+
+router.get("/", authMiddleware,getAnnouncements);
 
 
-router.get("/", getAnnouncements);
-
-
-router.post("/",
+router.post("/",authMiddleware,
         validateAnnouncement,
         createAnnouncement);
 
 
-router.put("/:id",
+router.put("/:id",authMiddleware,
     validateAnnouncement,
     updateAnnouncement);
 
 
-router.delete("/:id", deleteAnnouncement);
+router.delete("/:id",authMiddleware, deleteAnnouncement);
 
 
 module.exports=router;

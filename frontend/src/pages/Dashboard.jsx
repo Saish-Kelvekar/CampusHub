@@ -32,8 +32,12 @@ const Dashboard = () => {
     const [deletingNoteIds, setDeletingNoteIds] = useState([])
     const DELETE_ANIMATION_MS = 450
     const loadAnnouncements = async () => {
-        try {
-            const response = await fetch(`${API_URL}/announcements`)
+        try {const token = localStorage.getItem("token");
+            const response = await fetch(`${API_URL}/announcements`,{
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+            })
             if (!response.ok) {
                 const errorData = await response.json()
                 throw new Error(errorData.message)
@@ -80,10 +84,12 @@ const Dashboard = () => {
             const isEditing = editingAnnouncementId !== null
             const url = isEditing ? `${API_URL}/announcements/${editingAnnouncementId}` : `${API_URL}/announcements`
             const method = isEditing ? "PUT" : "POST"
+            const token=localStorage.getItem("token")
             const respone = await fetch(url, {
                 method: method,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization":`Bearer ${token}`
                 },
                 body: JSON.stringify({
                     title: announcementTitle,
@@ -112,18 +118,23 @@ const Dashboard = () => {
             setIsAnnouncementOpen(false)
         } catch (error) {
             console.error("error adding announcement:", error);
+            alert(error.message)
 
         }
     }
 
     const handleDeleteAnnouncement = async (id) => {
+        const token = localStorage.getItem("token");
         if (deletingAnnouncementIds.includes(id)) return
         setDeletingAnnouncementIds((prev) => [...prev, id])
         // Let the card delete animation play before removing the item
         await new Promise((resolve) => setTimeout(resolve, DELETE_ANIMATION_MS))
         try {
             const respone = await fetch(`${API_URL}/announcements/${id}`, {
-                method: "DELETE"
+                method: "DELETE",
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
             })
             const data = await respone.json()
             if (!respone.ok) {
