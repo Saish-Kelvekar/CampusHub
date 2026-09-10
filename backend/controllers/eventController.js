@@ -4,7 +4,7 @@ const { isValid } = require("../middleware/validation");
 async function getEvents(req, res, next) {
     try {
         const [rows] = await db.query(
-            "SELECT * FROM events"
+            "SELECT * FROM events WHERE user_id=?",[req.user.id]
         );
 
         res.json(rows);
@@ -22,12 +22,12 @@ async function createEvent(req, res, next) {
         const { title, date, location } = req.body;
 
         const [result] = await db.query(
-            `INSERT INTO events (TITLE,DATE,LOCATION)
-            VALUES(?,?,?)`, [title, date, location]
+            `INSERT INTO events (TITLE,DATE,LOCATION,user_id)
+            VALUES(?,?,?,?)`, [title, date, location,req.user.id]
         );
 
         const [rows] = await db.query(
-            "SELECT * FROM events WHERE id=?", [result.insertId]
+            "SELECT * FROM events WHERE id=? AND user_id=?", [result.insertId,req.user.id]
         );
 
         res.status(201).json(rows[0]);
@@ -48,7 +48,7 @@ async function deleteEvent(req, res, next) {
             );
         }
         const [result] = await db.query(
-            "DELETE FROM events WHERE id=?", [id]
+            "DELETE FROM events WHERE id=? and user_id=?", [id,req.user.id]
         );
 
 
@@ -82,8 +82,8 @@ async function updateEvent(req, res, next) {
         const { title, date, location } = req.body;
 
         const [existing] = await db.query(
-            `SELECT * FROM events WHERE id=?`,
-            [eventId]
+            `SELECT * FROM events WHERE id=? and user_id=?`,
+            [eventId,req.user.id]
         );
 
         if (existing.length === 0) {
@@ -96,11 +96,11 @@ async function updateEvent(req, res, next) {
         await db.query(
             `UPDATE events
             SET title=?,date=?,location=?
-            WHERE id=?`, [title, date, location, eventId]
+            WHERE id=? and user_id=?`, [title, date, location, eventId,req.user.id]
         );
         const [rows] = await db.query(
             `SELECT * FROM events
-            WHERE id=?`, [eventId]
+            WHERE id=? and user_id=?`, [eventId,req.user.id]
         );
 
         res.json(rows[0]);
